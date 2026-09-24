@@ -18,7 +18,7 @@ function createPool() {
   const connectionString = process.env.DATABASE_URL
   if (!connectionString) {
     throw new DatabaseError(
-      'DATABASE_URL is not set. Load it from the Stavarkling .env (admin-panel next.config does this) or add it to admin-panel/.env.local.'
+      'DATABASE_URL is not set. Add it to admin-panel/.env.local.'
     )
   }
 
@@ -39,7 +39,7 @@ export function hasDatabaseUrl() {
 export function requireDatabaseUrl() {
   if (!hasDatabaseUrl()) {
     throw new DatabaseError(
-      'DATABASE_URL is missing. Ensure stavarkling/.env (or .env.local) is present — admin-panel loads it automatically.'
+      'DATABASE_URL is missing. Add it to admin-panel/.env.local.'
     )
   }
 }

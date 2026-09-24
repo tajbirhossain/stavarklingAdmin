@@ -94,7 +94,7 @@ export async function loginWithPassword(
     return {
       ok: false,
       error:
-        'DATABASE_URL is not available. Confirm stavarkling/.env is loaded (see admin-panel next.config).',
+        'DATABASE_URL is not available. Add it to admin-panel/.env.local.',
       status: 503,
     }
   }

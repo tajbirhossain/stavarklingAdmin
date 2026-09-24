@@ -4,32 +4,30 @@ Operations console for the Stavarkling site — review access applications, upda
 
 ## Setup
 
-1. Ensure `stavarkling/.env` (or `.env.local`) has a working `DATABASE_URL`.
-   The admin panel loads it automatically via `next.config.ts`.
-
-2. Copy admin secrets:
+1. Copy env and fill in values (including the same `DATABASE_URL` as Stavarkling):
 
 ```bash
 cp .env.example .env.local
 ```
 
-Set:
+Required keys:
 
+- `DATABASE_URL` — same Supabase Postgres URI as the Stavarkling app
 - `ADMIN_SESSION_SECRET` — long random string (min 16 chars)
 - `ADMIN_BOOTSTRAP_PASSWORD` — used once to create the first admin row
 
-3. Run the admin auth migration in Supabase:
+2. Run the admin auth migration in Supabase:
 
 `db/migrations/006_admin_auth.sql`
 (also mirrored under `stavarkling/db/migrations/006_admin_auth.sql`)
 
-4. Create / rotate the admin password (optional if using bootstrap):
+3. Create / rotate the admin password (optional if using bootstrap):
 
 ```bash
 npm run admin:set-password -- "your-secure-password"
 ```
 
-5. Start:
+4. Start:
 
 ```bash
 npm run dev

@@ -8,9 +8,7 @@ const { loadEnvConfig } = nextEnv
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.join(__dirname, '..')
-const siteDir = path.join(root, '..', 'stavarkling')
 
-loadEnvConfig(siteDir)
 loadEnvConfig(root)
 
 const password = process.argv[2]
@@ -20,7 +18,7 @@ if (!password || password.length < 8) {
 }
 
 if (!process.env.DATABASE_URL) {
-  console.error('DATABASE_URL is missing (expected from stavarkling env).')
+  console.error('DATABASE_URL is missing in admin-panel/.env.local')
   process.exit(1)
 }
 
@@ -58,7 +56,10 @@ try {
      RETURNING id, username`,
     [passwordHash]
   )
-  const fingerprint = createHash('sha256').update(passwordHash).digest('hex').slice(0, 10)
+  const fingerprint = createHash('sha256')
+    .update(passwordHash)
+    .digest('hex')
+    .slice(0, 10)
   console.log(
     `Admin password updated for "${result.rows[0].username}" (hash fingerprint ${fingerprint}).`
   )

@@ -22,8 +22,7 @@ export default async function SettingsPage() {
           <p className="page-kicker">Settings</p>
           <h1 className="page-title font-display">Admin configuration</h1>
           <p className="page-sub">
-            Uses the Stavarkling DATABASE_URL automatically. Admin secrets stay in
-            admin-panel/.env.local.
+            Env lives in admin-panel/.env.local (including DATABASE_URL).
           </p>
         </div>
       </header>
@@ -45,9 +44,9 @@ export default async function SettingsPage() {
             <p>
               {hasDatabaseUrl()
                 ? dbCheck.ok
-                  ? 'Loaded from Stavarkling env and connected.'
+                  ? 'Set in .env.local and connected.'
                   : 'Present but connection failed — check the error above.'
-                : 'Missing. Confirm stavarkling/.env or .env.local exists with DATABASE_URL.'}
+                : 'Missing. Add DATABASE_URL to admin-panel/.env.local.'}
             </p>
           </div>
           <div className="settings-item">

@@ -8,34 +8,11 @@ const { loadEnvConfig } = nextEnv
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.join(__dirname, '..')
-const siteDir = path.join(root, '..', 'stavarkling')
 
-function loadEnvFile(filePath, { override = false } = {}) {
-  if (!fs.existsSync(filePath)) return
-  for (const rawLine of fs.readFileSync(filePath, 'utf8').split(/\r?\n/)) {
-    const line = rawLine.trim()
-    if (!line || line.startsWith('#')) continue
-    const eq = line.indexOf('=')
-    if (eq <= 0) continue
-    const key = line.slice(0, eq).trim()
-    let value = line.slice(eq + 1).trim()
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1)
-    }
-    if (override || process.env[key] === undefined) process.env[key] = value
-  }
-}
-
-loadEnvConfig(siteDir)
-loadEnvFile(path.join(siteDir, '.env'))
-loadEnvFile(path.join(siteDir, '.env.local'), { override: true })
-loadEnvFile(path.join(root, '.env.local'), { override: true })
+loadEnvConfig(root)
 
 if (!process.env.DATABASE_URL) {
-  console.error('DATABASE_URL missing')
+  console.error('DATABASE_URL missing in admin-panel/.env.local')
   process.exit(1)
 }
 
@@ -50,7 +27,9 @@ const pool = new pg.Pool({
 
 try {
   await pool.query(sql)
-  const apps = await pool.query('SELECT COUNT(*)::int AS count FROM access_applications')
+  const apps = await pool.query(
+    'SELECT COUNT(*)::int AS count FROM access_applications'
+  )
   const admins = await pool.query(
     `SELECT COUNT(*)::int AS count FROM information_schema.tables
      WHERE table_schema = 'public' AND table_name = 'admin_accounts'`
