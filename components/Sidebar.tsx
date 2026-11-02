@@ -46,6 +46,13 @@ function NavIcon({ name }: { name: (typeof NAV_ITEMS)[number]['icon'] }) {
           <path d="M17 16v-3" />
         </svg>
       )
+    case 'messages':
+      return (
+        <svg {...common}>
+          <path d="M4 6h16v12H4z" />
+          <path d="m4 7 8 6 8-6" />
+        </svg>
+      )
     case 'settings':
       return (
         <svg {...common}>
@@ -93,7 +100,7 @@ export default function Sidebar() {
 
       <aside className={`sidebar ${open ? 'sidebar-open' : ''}`}>
         <div className="sidebar-brand">
-          <Image src="/logo.png" alt="Stavarkling" width={36} height={36} className="sidebar-logo" />
+          <Image src="/lotus-icon-logo.png" alt="Stavarkling" width={36} height={36} className="sidebar-logo" />
           <div>
             <p className="sidebar-brand-name font-display">Stavarkling</p>
             <p className="sidebar-brand-sub">Admin</p>
@@ -111,6 +118,7 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={`sidebar-link ${active ? 'active' : ''}`}
+                aria-current={active ? 'page' : undefined}
                 onClick={() => setOpen(false)}
               >
                 <NavIcon name={item.icon} />

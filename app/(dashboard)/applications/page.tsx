@@ -1,4 +1,5 @@
 import ErrorBanner from '@/components/ErrorBanner'
+import ApplicationFilters from '@/components/ApplicationFilters'
 import ApplicationsTable from '@/components/ApplicationsTable'
 import { listApplications } from '@/lib/applications'
 import { loadOrError } from '@/lib/loadOrError'
@@ -49,31 +50,12 @@ export default async function ApplicationsPage({
         <ErrorBanner title="Could not load applicants" message={result.error} />
       ) : (
         <div className="panel panel-pad">
-          <form className="filter-form toolbar" method="get">
-            <input
-              type="search"
-              name="q"
-              defaultValue={q}
-              placeholder="Search name, email, country…"
-            />
-            <select name="status" defaultValue={status}>
-              <option value="all">All statuses</option>
-              <option value="pending">Pending</option>
-              <option value="under_review">Under review</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="withdrawn">Withdrawn</option>
-            </select>
-            <select name="stage" defaultValue={params.stage || 'all'}>
-              <option value="all">All stages</option>
-              <option value="1">Stage 1</option>
-              <option value="2">Stage 2</option>
-              <option value="3">Stage 3</option>
-            </select>
-            <button type="submit" className="btn-ghost">
-              Filter
-            </button>
-          </form>
+          <ApplicationFilters q={q} status={status} stage={params.stage || 'all'} />
+
+          <p className="result-count" aria-live="polite">
+            {result.data.length} {result.data.length === 1 ? 'applicant' : 'applicants'}
+            {q || status !== 'all' || stage !== 'all' ? ' matching your filters' : ''}
+          </p>
 
           <ApplicationsTable applications={result.data} />
         </div>

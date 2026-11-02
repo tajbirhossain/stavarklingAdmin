@@ -1,8 +1,10 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { STATUS_OPTIONS, STAGE_LABELS } from '@/lib/constants'
+import { applicantComposeHref } from '@/lib/composeMail'
 import type { AccessStage, Application, ApplicationStatus } from '@/lib/types'
 
 function newIdempotencyKey() {
@@ -31,6 +33,14 @@ export default function ApplicationActions({
     setStage(application.accessStage)
     setExpectedUpdatedAt(application.updatedAt)
   }, [application.id, application.status, application.accessStage, application.updatedAt])
+
+  const dirty = status !== application.status || stage !== application.accessStage
+
+  useEffect(() => {
+    if (!message) return
+    const id = window.setTimeout(() => setMessage(null), 4000)
+    return () => window.clearTimeout(id)
+  }, [message])
 
   async function save() {
     setBusy(true)
@@ -119,12 +129,32 @@ export default function ApplicationActions({
         </select>
       </label>
 
-      <button type="button" className="btn-primary" onClick={save} disabled={busy}>
-        {busy ? 'Saving…' : 'Save changes'}
+      <button
+        type="button"
+        className="btn-primary"
+        onClick={save}
+        disabled={busy || !dirty}
+      >
+        {busy ? 'Saving…' : dirty ? 'Save changes' : 'No changes to save'}
       </button>
 
-      {message ? <p className="form-success">{message}</p> : null}
-      {error ? <p className="form-error">{error}</p> : null}
+      <Link
+        href={applicantComposeHref(application.email, application.fullName)}
+        className="btn-ghost"
+      >
+        Send email
+      </Link>
+
+      {message ? (
+        <p className="form-success" role="status">
+          ✓ {message}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }

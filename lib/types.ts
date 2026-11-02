@@ -12,8 +12,7 @@ export type Application = {
   fullName: string
   email: string
   country: string
-  reason: string
-  reflection: string | null
+  reason: string | null
   status: ApplicationStatus
   accessStage: AccessStage
   accessStageUpdatedAt: string

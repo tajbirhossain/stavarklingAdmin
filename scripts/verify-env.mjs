@@ -1,5 +1,4 @@
 import nextEnv from '@next/env'
-import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -18,6 +17,10 @@ console.log(
       ADMIN_BOOTSTRAP_PASSWORD: Boolean(
         process.env.ADMIN_BOOTSTRAP_PASSWORD?.trim()
       ),
+      ZOHO_CLIENT_ID: Boolean(process.env.ZOHO_CLIENT_ID?.trim()),
+      ZOHO_CLIENT_SECRET: Boolean(process.env.ZOHO_CLIENT_SECRET?.trim()),
+      ZOHO_REFRESH_TOKEN: Boolean(process.env.ZOHO_REFRESH_TOKEN?.trim()),
+      ZOHO_FROM_EMAIL: Boolean(process.env.ZOHO_FROM_EMAIL?.trim()),
     },
     null,
     2

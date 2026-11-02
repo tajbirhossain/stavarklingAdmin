@@ -3,8 +3,10 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
+import Avatar from '@/components/Avatar'
 import StageBadge from '@/components/StageBadge'
 import StatusBadge from '@/components/StatusBadge'
+import { applicantComposeHref } from '@/lib/composeMail'
 import { formatRelative } from '@/lib/format'
 import type { StageRequest } from '@/lib/types'
 
@@ -19,6 +21,7 @@ export default function StageRequestsList({ requests }: { requests: StageRequest
   const router = useRouter()
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [confirmId, setConfirmId] = useState<string | null>(null)
   const keysRef = useRef<Record<string, string>>({})
 
   function keyFor(id: string) {
@@ -62,15 +65,22 @@ export default function StageRequestsList({ requests }: { requests: StageRequest
 
   return (
     <div className="request-list">
-      {error ? <p className="form-error">{error}</p> : null}
+      {error ? (
+        <p className="form-error" role="alert">
+          {error}
+        </p>
+      ) : null}
       {requests.map((req) => {
         const canAdvance = req.currentStage < 3
         return (
           <article key={req.id} className="request-card panel">
             <div className="request-main">
-              <div className="request-identity">
-                <h3>{req.fullName}</h3>
-                <p>{req.email}</p>
+              <div className="cell-person">
+                <Avatar name={req.fullName} />
+                <div className="request-identity">
+                  <h3>{req.fullName}</h3>
+                  <p>{req.email}</p>
+                </div>
               </div>
               <div className="request-meta">
                 <StatusBadge status={req.status} />
@@ -87,14 +97,46 @@ export default function StageRequestsList({ requests }: { requests: StageRequest
               <Link href={`/applications/${req.applicationId}`} className="btn-ghost">
                 View profile
               </Link>
-              {canAdvance ? (
+              <Link
+                href={applicantComposeHref(req.email, req.fullName)}
+                className="btn-ghost"
+              >
+                Send email
+              </Link>
+              {canAdvance && confirmId === req.id ? (
+                <div className="confirm-box" role="alertdialog" aria-label="Confirm advance">
+                  <p className="confirm-text">
+                    Grant {req.fullName.split(' ')[0]} access to stage {req.currentStage + 1}?
+                  </p>
+                  <div className="confirm-buttons">
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      disabled={busyId === req.id}
+                      onClick={async () => {
+                        await advance(req.id)
+                        setConfirmId(null)
+                      }}
+                    >
+                      {busyId === req.id ? 'Advancing…' : 'Yes, advance'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-ghost"
+                      disabled={busyId === req.id}
+                      onClick={() => setConfirmId(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : canAdvance ? (
                 <button
                   type="button"
                   className="btn-primary"
-                  disabled={busyId === req.id}
-                  onClick={() => advance(req.id)}
+                  onClick={() => setConfirmId(req.id)}
                 >
-                  {busyId === req.id ? 'Advancing…' : 'Advance stage'}
+                  Advance stage
                 </button>
               ) : (
                 <span className="request-chip">Final stage</span>

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Avatar from '@/components/Avatar'
 import ErrorBanner from '@/components/ErrorBanner'
 import StatusBadge from '@/components/StatusBadge'
 import { STAGE_LABELS } from '@/lib/constants'
@@ -79,11 +80,14 @@ export default async function OverviewPage() {
             <div className="recent-list">
               {stats.recentApplications.map((app) => (
                 <Link key={app.id} href={`/applications/${app.id}`} className="recent-item">
-                  <div>
-                    <p className="recent-name">{app.fullName}</p>
-                    <p className="recent-meta">
-                      {app.country} · {formatRelative(app.createdAt)}
-                    </p>
+                  <div className="cell-person">
+                    <Avatar name={app.fullName} size="sm" />
+                    <div>
+                      <p className="recent-name">{app.fullName}</p>
+                      <p className="recent-meta">
+                        {app.country} · {formatRelative(app.createdAt)}
+                      </p>
+                    </div>
                   </div>
                   <StatusBadge status={app.status} />
                 </Link>

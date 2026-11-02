@@ -6,8 +6,7 @@ type ApplicationRow = {
   full_name: string
   email: string
   country: string
-  reason: string
-  reflection: string | null
+  reason: string | null
   status: ApplicationStatus
   access_stage: number
   access_stage_updated_at: Date
@@ -25,7 +24,6 @@ function mapRow(row: ApplicationRow): Application {
     email: row.email,
     country: row.country,
     reason: row.reason,
-    reflection: row.reflection,
     status: row.status,
     accessStage: row.access_stage as AccessStage,
     accessStageUpdatedAt: row.access_stage_updated_at.toISOString(),
@@ -44,7 +42,6 @@ const SELECT_BASE = `
     a.email,
     a.country,
     a.reason,
-    a.reflection,
     a.status,
     a.access_stage,
     a.access_stage_updated_at,

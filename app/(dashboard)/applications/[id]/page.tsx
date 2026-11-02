@@ -1,10 +1,12 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import ApplicationActions from '@/components/ApplicationActions'
+import Avatar from '@/components/Avatar'
 import ErrorBanner from '@/components/ErrorBanner'
 import StageBadge from '@/components/StageBadge'
 import StatusBadge from '@/components/StatusBadge'
 import { getApplication } from '@/lib/applications'
+import { applicantComposeHref } from '@/lib/composeMail'
 import { formatDateTime } from '@/lib/format'
 import { loadOrError } from '@/lib/loadOrError'
 
@@ -38,9 +40,22 @@ export default async function ApplicationDetailPage({ params }: { params: Params
 
       <div className="detail-layout">
         <article className="panel detail-hero">
-          <p className="page-kicker">Applicant</p>
-          <h1 className="detail-name font-display">{application.fullName}</h1>
-          <p className="detail-email">{application.email}</p>
+          <div className="detail-hero-top">
+            <div className="cell-person">
+              <Avatar name={application.fullName} size="lg" />
+              <div>
+                <p className="page-kicker">Applicant</p>
+                <h1 className="detail-name font-display">{application.fullName}</h1>
+                <p className="detail-email">{application.email}</p>
+              </div>
+            </div>
+            <Link
+              href={applicantComposeHref(application.email, application.fullName)}
+              className="btn-primary detail-email-btn"
+            >
+              Send email
+            </Link>
+          </div>
 
           <div className="detail-chips">
             <StatusBadge status={application.status} />
@@ -69,15 +84,10 @@ export default async function ApplicationDetailPage({ params }: { params: Params
             </div>
           </div>
 
-          <div className="prose-block">
-            <h3>Motivation</h3>
-            <p>{application.reason}</p>
-          </div>
-
-          {application.reflection ? (
+          {application.reason ? (
             <div className="prose-block">
-              <h3>Reflection</h3>
-              <p>{application.reflection}</p>
+              <h3>Personal note</h3>
+              <p>{application.reason}</p>
             </div>
           ) : null}
         </article>

@@ -11,7 +11,7 @@ export default function LoginPage() {
     <div className="login-page">
       <div className="panel login-card">
         <div className="login-brand">
-          <Image src="/logo.png" alt="Stavarkling" width={44} height={44} priority />
+          <Image src="/lotus-icon-logo.png" alt="Stavarkling" width={44} height={44} priority />
           <div>
             <h1 className="font-display">Stavarkling</h1>
             <p>Admin access</p>
