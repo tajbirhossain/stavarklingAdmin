@@ -1,31 +1,13 @@
 import { withClient } from '@/lib/db'
 
-export const ACQUISITION_STATUSES = [
-  'received',
-  'in_conversation',
-  'handover_open',
-  'handover_submitted',
-  'completed',
-  'closed',
-] as const
+import type { AcquisitionStatus } from '@/lib/acquisitionStatus'
 
-export type AcquisitionStatus = (typeof ACQUISITION_STATUSES)[number]
-
-export const ACQUISITION_STATUS_LABELS: Record<AcquisitionStatus, string> = {
-  received: 'Received',
-  in_conversation: 'In conversation',
-  handover_open: 'Handover open',
-  handover_submitted: 'Handover submitted',
-  completed: 'Completed',
-  closed: 'Closed',
-}
-
-export function isAcquisitionStatus(value: unknown): value is AcquisitionStatus {
-  return (
-    typeof value === 'string' &&
-    (ACQUISITION_STATUSES as readonly string[]).includes(value)
-  )
-}
+export {
+  ACQUISITION_STATUSES,
+  ACQUISITION_STATUS_LABELS,
+  isAcquisitionStatus,
+  type AcquisitionStatus,
+} from '@/lib/acquisitionStatus'
 
 export type Acquisition = {
   id: string
@@ -33,11 +15,7 @@ export type Acquisition = {
   fullName: string
   email: string
   country: string | null
-  placeAnswer: string
-  drawAnswer: string | null
-  contactMethod: string
-  contactDetail: string | null
-  bestTime: string | null
+  message: string | null
   status: AcquisitionStatus
   repliedAt: string | null
   createdAt: string
@@ -51,11 +29,7 @@ type Row = {
   full_name: string
   email: string
   country: string | null
-  place_answer: string
-  draw_answer: string | null
-  contact_method: string
-  contact_detail: string | null
-  best_time: string | null
+  message: string | null
   status: AcquisitionStatus
   replied_at: Date | null
   created_at: Date
@@ -67,9 +41,7 @@ export async function listAcquisitions(): Promise<Acquisition[]> {
   return withClient(async (client) => {
     const result = await client.query<Row>(
       `SELECT e.id, e.application_id, a.full_name, a.email, a.country,
-              e.place_answer, e.draw_answer, e.contact_method,
-              e.contact_detail, e.best_time, e.status, e.replied_at,
-              e.created_at
+              e.message, e.status, e.replied_at, e.created_at
        FROM acquisition_enquiries e
        JOIN access_applications a ON a.id = e.application_id
        ORDER BY e.created_at DESC
@@ -82,11 +54,7 @@ export async function listAcquisitions(): Promise<Acquisition[]> {
       fullName: r.full_name,
       email: r.email,
       country: r.country,
-      placeAnswer: r.place_answer,
-      drawAnswer: r.draw_answer,
-      contactMethod: r.contact_method,
-      contactDetail: r.contact_detail,
-      bestTime: r.best_time,
+      message: r.message,
       status: r.status,
       repliedAt: r.replied_at?.toISOString() ?? null,
       createdAt: r.created_at.toISOString(),

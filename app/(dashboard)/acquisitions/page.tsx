@@ -18,7 +18,7 @@ export default async function AcquisitionsPage() {
           <p className="page-kicker">Final stage</p>
           <h1 className="page-title font-display">Private acquisition</h1>
           <p className="page-sub">
-            Collectors who began the conversation. Reply within 24 hours.
+            Collectors who requested the private acquisition. Reply within 24 hours; the rest is handled privately.
           </p>
         </div>
       </header>
@@ -33,7 +33,7 @@ export default async function AcquisitionsPage() {
           <div className="empty-state">
             <p className="empty-title font-display">No enquiries yet</p>
             <p className="empty-text">
-              They appear here when a stage-3 collector begins the conversation.
+              They appear here when a stage-3 collector requests the private acquisition.
             </p>
           </div>
         </div>
@@ -44,8 +44,7 @@ export default async function AcquisitionsPage() {
               <thead>
                 <tr>
                   <th>Collector</th>
-                  <th>Their answers</th>
-                  <th>Contact</th>
+                  <th>Message</th>
                   <th>Received</th>
                   <th>Status</th>
                   <th />
@@ -69,27 +68,9 @@ export default async function AcquisitionsPage() {
                       </div>
                     </td>
                     <td>
-                      <div className="cell-stack">
-                        <span className="cell-reason">
-                          <strong>Place:</strong> {e.placeAnswer}
-                        </span>
-                        {e.drawAnswer ? (
-                          <span className="cell-reason">
-                            <strong>Drawn by:</strong> {e.drawAnswer}
-                          </span>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="cell-stack">
-                        <span className="cell-primary">{e.contactMethod}</span>
-                        {e.contactDetail ? (
-                          <span className="cell-muted">{e.contactDetail}</span>
-                        ) : null}
-                        {e.bestTime ? (
-                          <span className="cell-muted">{e.bestTime}</span>
-                        ) : null}
-                      </div>
+                      <span className="cell-reason">
+                        {e.message ?? <span className="cell-muted">No message</span>}
+                      </span>
                     </td>
                     <td>
                       <div className="cell-stack-tight">

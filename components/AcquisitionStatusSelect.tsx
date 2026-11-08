@@ -6,7 +6,7 @@ import {
   ACQUISITION_STATUSES,
   ACQUISITION_STATUS_LABELS,
   type AcquisitionStatus,
-} from '@/lib/acquisitions'
+} from '@/lib/acquisitionStatus'
 
 export default function AcquisitionStatusSelect({
   id,
