@@ -26,6 +26,7 @@ export const NAV_ITEMS = [
   { href: '/', label: 'Overview', icon: 'overview' as const },
   { href: '/applications', label: 'Applicants', icon: 'users' as const },
   { href: '/stage-requests', label: 'Stage requests', icon: 'stages' as const },
+  { href: '/acquisitions', label: 'Acquisition', icon: 'acquisition' as const },
   { href: '/messages', label: 'Messages', icon: 'messages' as const },
   { href: '/subscribers', label: 'Subscribers', icon: 'subscribers' as const },
   { href: '/settings', label: 'Settings', icon: 'settings' as const },
