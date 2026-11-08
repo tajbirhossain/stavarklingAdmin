@@ -53,6 +53,13 @@ function NavIcon({ name }: { name: (typeof NAV_ITEMS)[number]['icon'] }) {
           <path d="m4 7 8 6 8-6" />
         </svg>
       )
+    case 'subscribers':
+      return (
+        <svg {...common}>
+          <path d="M4 6h16v12H4z" />
+          <path d="M9 12h6M12 9v6" />
+        </svg>
+      )
     case 'settings':
       return (
         <svg {...common}>
