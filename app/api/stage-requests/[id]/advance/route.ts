@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { sendDecisionInvitationEmail } from '@/lib/accessEmail'
+import { getApplication } from '@/lib/applications'
 import { toPublicDbMessage } from '@/lib/db'
 import { runIdempotent } from '@/lib/idempotency'
 import { getIdempotencyKey, requireAdminSession } from '@/lib/requireAdmin'
@@ -20,7 +22,26 @@ export async function POST(request: Request, { params }: Params) {
           result.code === 'not_found' ? 404 : result.code === 'conflict' ? 409 : 400
         return { status: statusCode, body: { error: result.error } }
       }
-      return { status: 200, body: result }
+
+      // Approving access to The Decision invites the visitor by email.
+      let emailSent = false
+      let emailError: string | undefined
+      if (result.toStage === 3 && !result.alreadyAdvanced) {
+        try {
+          const applicant = await getApplication(result.applicationId)
+          if (!applicant) throw new Error('Applicant not found for the email.')
+          await sendDecisionInvitationEmail({
+            to: applicant.email,
+            fullName: applicant.fullName,
+          })
+          emailSent = true
+        } catch (err) {
+          console.error('decision invitation email failed', err)
+          emailError = err instanceof Error ? err.message : 'Email failed'
+        }
+      }
+
+      return { status: 200, body: { ...result, emailSent, emailError } }
     }
 
     const idempotencyKey = getIdempotencyKey(request)

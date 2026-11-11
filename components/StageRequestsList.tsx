@@ -21,6 +21,7 @@ export default function StageRequestsList({ requests }: { requests: StageRequest
   const router = useRouter()
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const keysRef = useRef<Record<string, string>>({})
 
@@ -32,6 +33,7 @@ export default function StageRequestsList({ requests }: { requests: StageRequest
   async function advance(id: string) {
     setBusyId(id)
     setError(null)
+    setNotice(null)
     try {
       const res = await fetch(`/api/stage-requests/${id}/advance`, {
         method: 'POST',
@@ -44,6 +46,17 @@ export default function StageRequestsList({ requests }: { requests: StageRequest
         return
       }
       keysRef.current[id] = newIdempotencyKey()
+      if (data.toStage === 3 && !data.alreadyAdvanced) {
+        if (data.emailSent) {
+          setNotice('Approved. The invitation email has been sent.')
+        } else {
+          setError(
+            `Approved, but the invitation email could not be sent${
+              data.emailError ? ` (${data.emailError})` : ''
+            }. Use "Send email" to invite them manually.`
+          )
+        }
+      }
       router.refresh()
     } catch {
       setError('Network error — check your connection and try again')
@@ -70,6 +83,11 @@ export default function StageRequestsList({ requests }: { requests: StageRequest
           {error}
         </p>
       ) : null}
+      {notice ? (
+        <p className="result-count" role="status">
+          {notice}
+        </p>
+      ) : null}
       {requests.map((req) => {
         const canAdvance = req.currentStage < 3
         return (
@@ -88,9 +106,11 @@ export default function StageRequestsList({ requests }: { requests: StageRequest
                 <span className="cell-muted">Requested {formatRelative(req.requestedAt)}</span>
               </div>
               <p className="request-copy">
-                {req.fromStage < 3
-                  ? `Asked to move beyond stage ${req.fromStage}.`
-                  : 'Requested private acquisition at the final stage.'}
+                {req.fromStage === 2
+                  ? 'Requested access to The Decision.'
+                  : req.fromStage < 3
+                    ? `Asked to move beyond stage ${req.fromStage}.`
+                    : 'Requested private acquisition at the final stage.'}
               </p>
             </div>
             <div className="request-actions">
@@ -107,6 +127,7 @@ export default function StageRequestsList({ requests }: { requests: StageRequest
                 <div className="confirm-box" role="alertdialog" aria-label="Confirm advance">
                   <p className="confirm-text">
                     Grant {req.fullName.split(' ')[0]} access to stage {req.currentStage + 1}?
+                    {req.currentStage === 2 ? ' They will be emailed an invitation.' : ''}
                   </p>
                   <div className="confirm-buttons">
                     <button

@@ -40,6 +40,7 @@ export async function listStageRequests(): Promise<StageRequest[]> {
        FROM access_stage_requests r
        JOIN access_applications a ON a.id = r.application_id
        WHERE r.from_stage = a.access_stage
+         AND r.from_stage = 2
        ORDER BY r.requested_at DESC
        LIMIT 200`
     )

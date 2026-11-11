@@ -41,7 +41,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       `SELECT COUNT(*)::text AS count
        FROM access_stage_requests r
        JOIN access_applications a ON a.id = r.application_id
-       WHERE r.from_stage = a.access_stage`
+       WHERE r.from_stage = a.access_stage
+         AND r.from_stage = 2`
     )
 
     const recent = await client.query<RecentRow>(
