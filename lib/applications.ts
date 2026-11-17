@@ -1,4 +1,5 @@
 import { withClient, withTransaction } from '@/lib/db'
+import { FOLDERS, type FolderCounts, type FolderId } from '@/lib/applicationFolders'
 import type { AccessStage, Application, ApplicationStatus } from '@/lib/types'
 
 type ApplicationRow = {
@@ -74,14 +75,57 @@ export function isAccessStage(value: unknown): value is AccessStage {
   return value === 1 || value === 2 || value === 3
 }
 
+// SQL for each folder. Mirrors the Stage requests page: an open request is one
+// made from the applicant's current stage, and only Stage 2 -> 3 needs a decision.
+const OPEN_DECISION_REQUEST = `EXISTS (
+  SELECT 1 FROM access_stage_requests r
+  WHERE r.application_id = a.id
+    AND r.from_stage = a.access_stage
+    AND r.from_stage = 2
+)`
+
+const FOLDER_WHERE: Record<FolderId, string | null> = {
+  all: null,
+  'needs-decision': OPEN_DECISION_REQUEST,
+  new: `a.created_at > now() - interval '7 days'`,
+  'stage-1': `a.access_stage = 1`,
+  'stage-2': `a.access_stage = 2`,
+  'stage-3': `a.access_stage = 3`,
+  rejected: `a.status = 'rejected'`,
+  withdrawn: `a.status = 'withdrawn'`,
+  pending: `a.status = 'pending'`,
+  'under-review': `a.status = 'under_review'`,
+  approved: `a.status = 'approved'`,
+}
+
+export async function getFolderCounts(): Promise<FolderCounts> {
+  return withClient(async (client) => {
+    const selects = FOLDERS.map(
+      (f) =>
+        `COUNT(*) FILTER (WHERE ${FOLDER_WHERE[f.id] ?? 'true'})::int AS "${f.id}"`
+    ).join(',\n         ')
+    const result = await client.query<Record<string, number>>(
+      `SELECT ${selects} FROM access_applications a`
+    )
+    const row = result.rows[0] ?? {}
+    return Object.fromEntries(
+      FOLDERS.map((f) => [f.id, Number(row[f.id] ?? 0)])
+    ) as FolderCounts
+  })
+}
+
 export async function listApplications(filters?: {
   status?: ApplicationStatus | 'all'
   stage?: AccessStage | 'all'
+  folder?: FolderId
   q?: string
 }): Promise<Application[]> {
   return withClient(async (client) => {
     const where: string[] = []
     const params: unknown[] = []
+
+    const folderWhere = filters?.folder ? FOLDER_WHERE[filters.folder] : null
+    if (folderWhere) where.push(folderWhere)
 
     if (filters?.status && filters.status !== 'all') {
       params.push(filters.status)
@@ -100,7 +144,13 @@ export async function listApplications(filters?: {
 
     const sql = `${SELECT_BASE}
       ${where.length ? `WHERE ${where.join(' AND ')}` : ''}
-      ORDER BY a.created_at DESC
+      ORDER BY ${
+        filters?.folder === 'needs-decision'
+          ? `(SELECT MIN(r.requested_at) FROM access_stage_requests r
+              WHERE r.application_id = a.id AND r.from_stage = a.access_stage) ASC NULLS LAST,
+             a.created_at DESC`
+          : 'a.created_at DESC'
+      }
       LIMIT 200`
 
     const result = await client.query<ApplicationRow>(sql, params)
