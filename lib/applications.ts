@@ -119,7 +119,7 @@ export async function getApplication(id: string): Promise<Application | null> {
 }
 
 export type UpdateApplicationResult =
-  | { ok: true; application: Application }
+  | { ok: true; application: Application; previousAccessStage: AccessStage }
   | { ok: false; error: string; code: 'not_found' | 'conflict' | 'invalid' }
 
 export async function updateApplication(input: {
@@ -205,6 +205,10 @@ export async function updateApplication(input: {
       return { ok: false as const, error: 'Not found', code: 'not_found' as const }
     }
 
-    return { ok: true as const, application: mapRow(refreshed.rows[0]) }
+    return {
+      ok: true as const,
+      application: mapRow(refreshed.rows[0]),
+      previousAccessStage: row.access_stage as AccessStage,
+    }
   })
 }

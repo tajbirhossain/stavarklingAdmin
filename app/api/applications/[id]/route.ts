@@ -5,6 +5,7 @@ import {
   isApplicationStatus,
   updateApplication,
 } from '@/lib/applications'
+import { sendStage3PromotionEmail } from '@/lib/accessEmail'
 import { toPublicDbMessage } from '@/lib/db'
 import { runIdempotent } from '@/lib/idempotency'
 import { getIdempotencyKey, requireAdminSession } from '@/lib/requireAdmin'
@@ -71,7 +72,35 @@ export async function PATCH(request: Request, { params }: Params) {
           result.code === 'not_found' ? 404 : result.code === 'conflict' ? 409 : 400
         return { status: statusCode, body: { error: result.error } }
       }
-      return { status: 200, body: { application: result.application } }
+
+      // Promoting someone to Stage 3 from here tells them by email too.
+      // Only on a real change into Stage 3, so saving again never re-sends.
+      let emailSent = false
+      let emailError: string | undefined
+      const promoted =
+        result.application.accessStage === 3 && result.previousAccessStage < 3
+      if (promoted) {
+        try {
+          await sendStage3PromotionEmail({
+            to: result.application.email,
+            fullName: result.application.fullName,
+          })
+          emailSent = true
+        } catch (err) {
+          console.error('stage 3 promotion email failed', err)
+          emailError = err instanceof Error ? err.message : 'Email failed'
+        }
+      }
+
+      return {
+        status: 200,
+        body: {
+          application: result.application,
+          promotedToStage3: promoted,
+          emailSent,
+          emailError,
+        },
+      }
     }
 
     const idempotencyKey = getIdempotencyKey(request)

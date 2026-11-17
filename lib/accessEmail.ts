@@ -36,10 +36,11 @@ function escapeHtml(value: string) {
 }
 
 /**
- * Sent when a Decision request is approved. The button opens The Decision;
- * the visitor confirms with their usual email code if they are not signed in.
+ * Sent when a member is promoted to Stage 3 (The Decision), whether their
+ * request was approved or an admin promoted them directly. The button opens
+ * The Decision; they confirm with their usual email code if not signed in.
  */
-export async function sendDecisionInvitationEmail(input: {
+export async function sendStage3PromotionEmail(input: {
   to: string
   fullName: string
 }) {
@@ -51,7 +52,7 @@ export async function sendDecisionInvitationEmail(input: {
     from: getFrom(),
     to: input.to,
     replyTo: CONTACT_EMAIL,
-    subject: 'Your invitation to The Decision',
+    subject: 'You have been promoted to Stage 3: The Decision',
     html: `
       <!doctype html>
       <html lang="en">
@@ -60,11 +61,11 @@ export async function sendDecisionInvitationEmail(input: {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta name="color-scheme" content="light only" />
           <meta name="supported-color-schemes" content="light only" />
-          <title>Your invitation to The Decision</title>
+          <title>You have been promoted to Stage 3: The Decision</title>
         </head>
         <body style="margin:0; padding:0; background:#f6eef0;" bgcolor="#f6eef0">
           <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:#f6eef0;">
-            Your request has been reviewed. The Decision is now open to you.
+            You now have access to Stage 3, The Decision.
           </div>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f6eef0" style="background:#f6eef0;">
             <tr>
@@ -95,7 +96,7 @@ export async function sendDecisionInvitationEmail(input: {
                         </tr>
                         <tr>
                           <td align="center" style="padding:14px 40px 0; font-family:${font}; font-size:31px; line-height:1.25; font-weight:normal; color:#2a1f23;">
-                            Your request has been reviewed
+                            You have been promoted to Stage 3
                           </td>
                         </tr>
                         <tr>
@@ -110,7 +111,26 @@ export async function sendDecisionInvitationEmail(input: {
                         </tr>
                         <tr>
                           <td style="padding:14px 40px 0; font-family:${font}; font-size:17px; line-height:1.75; color:#2a1f23;">
-                            The Decision is now open to you.
+                            Your access has been extended to the final stage. The Decision is now open to you.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding:28px 40px 0;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fbf1f4" style="background:#fbf1f4; border:1px solid #f0d6df; border-radius:14px;">
+                              <tr>
+                                <td align="center" style="padding:24px 26px;">
+                                  <div style="font-family:${font}; font-size:11px; letter-spacing:0.3em; color:#9a2349; text-transform:uppercase; padding:0 0 8px;">
+                                    <span aria-hidden="true" style="color:#c8708e;">&#10022;&nbsp;</span>Stage 03 of 03
+                                  </div>
+                                  <div style="font-family:${font}; font-size:24px; letter-spacing:0.14em; color:#2a1f23; text-transform:uppercase; padding:0 0 12px;">
+                                    The Decision
+                                  </div>
+                                  <div style="font-family:${font}; font-size:16px; line-height:1.75; font-style:italic; color:#6b5f63;">
+                                    Your acquisition becomes the answer.<br />The artwork becomes yours.
+                                  </div>
+                                </td>
+                              </tr>
+                            </table>
                           </td>
                         </tr>
                         <tr>
@@ -153,11 +173,14 @@ export async function sendDecisionInvitationEmail(input: {
     `,
     text: [
       'PRIVATE ACCESS',
-      'Your request has been reviewed',
+      'You have been promoted to Stage 3',
       '',
       `Dear ${first},`,
       '',
-      'The Decision is now open to you.',
+      'Your access has been extended to the final stage. The Decision is now open to you.',
+      '',
+      'STAGE 03 OF 03 - THE DECISION',
+      'Your acquisition becomes the answer. The artwork becomes yours.',
       '',
       `ENTER THE DECISION: ${link}`,
       '',

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { sendDecisionInvitationEmail } from '@/lib/accessEmail'
+import { sendStage3PromotionEmail } from '@/lib/accessEmail'
 import { getApplication } from '@/lib/applications'
 import { toPublicDbMessage } from '@/lib/db'
 import { runIdempotent } from '@/lib/idempotency'
@@ -23,14 +23,14 @@ export async function POST(request: Request, { params }: Params) {
         return { status: statusCode, body: { error: result.error } }
       }
 
-      // Approving access to The Decision invites the visitor by email.
+      // Promoting someone to Stage 3 tells them by email.
       let emailSent = false
       let emailError: string | undefined
       if (result.toStage === 3 && !result.alreadyAdvanced) {
         try {
           const applicant = await getApplication(result.applicationId)
           if (!applicant) throw new Error('Applicant not found for the email.')
-          await sendDecisionInvitationEmail({
+          await sendStage3PromotionEmail({
             to: applicant.email,
             fullName: applicant.fullName,
           })

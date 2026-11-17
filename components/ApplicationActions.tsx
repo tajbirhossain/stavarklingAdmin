@@ -38,7 +38,7 @@ export default function ApplicationActions({
 
   useEffect(() => {
     if (!message) return
-    const id = window.setTimeout(() => setMessage(null), 4000)
+    const id = window.setTimeout(() => setMessage(null), 6000)
     return () => window.clearTimeout(id)
   }, [message])
 
@@ -82,7 +82,18 @@ export default function ApplicationActions({
       setStatus(saved.status)
       setStage(saved.accessStage)
       idempotencyKeyRef.current = newIdempotencyKey()
-      setMessage('Changes saved')
+      if (data.promotedToStage3 && data.emailSent) {
+        setMessage('Changes saved. They have been emailed about Stage 3.')
+      } else if (data.promotedToStage3) {
+        setMessage('Changes saved')
+        setError(
+          `The Stage 3 email could not be sent${
+            typeof data.emailError === 'string' ? ` (${data.emailError})` : ''
+          }. Use "Send email" to tell them manually.`
+        )
+      } else {
+        setMessage('Changes saved')
+      }
       router.refresh()
     } catch {
       setError('Network error — check your connection and try again')
@@ -128,6 +139,12 @@ export default function ApplicationActions({
           ))}
         </select>
       </label>
+
+      {stage === 3 && application.accessStage < 3 ? (
+        <p className="panel-sub">
+          Saving will email them that they have been promoted to Stage 3.
+        </p>
+      ) : null}
 
       <button
         type="button"
